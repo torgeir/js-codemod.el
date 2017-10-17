@@ -1,24 +1,25 @@
 #!/usr/bin/env node
-const jscodeshift = require('jscodeshift');
 
 const fail = function (err = "Usage: replace [mod]\nReads content to perform codemon on from stdin.") {
     console.error(err);
     process.exit(1);
 }
 
-const safeRequire = function (module) {
+const safeRequire = function (module, err) {
     try {
         return require(module);
     }
     catch (e) {
-        fail(e);
+        fail(err || e);
     }
 };
+
+const jscodeshift = safeRequire('jscodeshift', "Did you forget to install jscodeshift? `npm i -g jscodeshift` and try again.");
 
 const { stdin, stdout, argv: [ , , mod] } = process;
 if (!mod) fail("No mod provided as first arg?");
 
-const transform = safeRequire(mod);
+const transform = safeRequire(mod, `Mod not found: ${mod}`);
 if (typeof transform != "function") fail("The required mod does not export a function. Did you provide a file with a jscodemod mod?");
 
 (async function () {
