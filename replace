@@ -3,7 +3,7 @@
 const fail = function (err = "Usage: replace [mod]\nReads content to perform codemon on from stdin.") {
     console.error(err);
     process.exit(1);
-}
+};
 
 const safeRequire = function (module, err) {
     try {
