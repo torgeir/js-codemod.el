@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+const jscodeshift = require('jscodeshift');
+
+const fail = function (err = "Usage: replace [mod]\nReads content to perform codemon on from stdin.") {
+    console.error(err);
+    process.exit(1);
+}
+
+const safeRequire = function (module) {
+    try {
+        return require(module);
+    }
+    catch (e) {
+        fail(e);
+    }
+};
+
+const { stdin, stdout, argv: [ , , mod] } = process;
+if (!mod) fail("No mod provided as first arg?");
+
+const transform = safeRequire(mod);
+if (typeof transform != "function") fail("The required mod does not export a function. Did you provide a file with a jscodemod mod?");
+
+(async function () {
+    stdin.resume();
+    const source = await readStdin();
+    if (!source) fail(`No source code provided on stdin, got: ${source}`);
+    try {
+        const result = transform({ source }, { j: jscodeshift, jscodeshift, stats: _ => _ }, {});
+        stdout.write(result);
+    } catch (err) {
+        fail(err);
+    }
+})();
+
+async function readStdin() {
+    return new Promise(resolve => {
+        let data = "";
+        stdin.on('data', (buf) => (data += buf.toString()));
+        stdin.on('end', () => resolve(data));
+    });
+}
