@@ -3,7 +3,6 @@ Run js-codemod on current line or selected region.
 
 ## Installing
 
-
 It's soon™ on [MELPA](https://melpa.org/#/getting-started), so any minute now you can run `M-x package-install js-codemod` to install it.
 
 Or preferably using the ingenious [use-package](https://github.com/jwiegley/use-package) declaration
