@@ -36,6 +36,7 @@
   (end-of-line)
   (exchange-point-and-mark))
 
+;;;###autoload
 (defun js-codemod/mod-region (mod)
   "Run js-codemod `MOD' on currentline or selected region."
   (interactive "fCodemode file: ")
