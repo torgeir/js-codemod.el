@@ -1,6 +1,10 @@
 # js-codemod.el
 Run js-codemod on current line or selected region.
 
+## Dependencies
+
+`npm i -g jscodeshift`
+
 ## Installing
 
 It's soon™ on [MELPA](https://melpa.org/#/getting-started), so any minute now you can run `M-x package-install js-codemod` to install it.
