@@ -1,5 +1,5 @@
 # js-codemod.el
-Run js-codemod on current line or selected region.
+Run js-codemod on current line or selected region. Works great with [helm-js-codemod.el](https://github.com/torgeir/helm-js-codemod.el)!
 
 ## Dependencies
 
