@@ -3,7 +3,7 @@
 ;; Copyright (C) 2017 @torgeir
 
 ;; Author: Torgeir Thoresen <@torgeir>
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Keywords: js codemod region
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -30,28 +30,25 @@
   "js-codemod-error.log"
   "Log file to write js-codemod error output to.")
 
-(defun js-codemod--select-line-region ()
-  "Create region for the current line."
-  (set-mark (line-beginning-position))
-  (end-of-line)
-  (exchange-point-and-mark))
+(defconst js-codemod--prog
+  (concat (file-name-directory load-file-name) "replace")
+  "Path of program to run for codemod execution.")
 
 ;;;###autoload
-(defun js-codemod-mod-region (mod)
+(defun js-codemod-mod-region (beg end)
   "Run js-codemod `MOD' on currentline or selected region."
-  (interactive "fCodemode file: ")
+  (interactive
+   (if (region-active-p)
+       (list (region-beginning) (region-end))
+     (list (line-beginning-position) (line-end-position))))
   (save-excursion
-    (when (not (region-active-p))
-      (js-codemod--select-line-region))
-    (let* ((current-folder (file-name-directory (locate-file "js-codemod.el" load-path)))
+    (let* ((mod (read-file-name "Codemode file: "))
            (delete t)
            (redisplay nil)
-           (r-begin (region-beginning))
-           (r-end (region-end))
-           (selection (buffer-substring r-begin r-end))
-           (exit (call-process-region r-begin
-                                      r-end
-                                      (concat current-folder "replace")
+           (selection (buffer-substring beg end))
+           (exit (call-process-region beg
+                                      end
+                                      js-codemod--prog
                                       delete
                                       `(t                     ; insert stdin at point
                                         ,js-codemod--err-file ; write stderr to file
