@@ -1,9 +1,9 @@
-;;; js-codemod.el --- Run js-codemod on current line or selected region -*- lexical-binding: t -*-
+;;; js-codemod.el --- Run js-codemod on current sentence or selected region -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2017 @torgeir
 
 ;; Author: Torgeir Thoresen <@torgeir>
-;; Version: 1.0.1
+;; Version: 1.1.0
 ;; Keywords: js codemod region
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -22,7 +22,7 @@
 
 ;;; Commentary:
 
-;; Runs js-codemod on current line or selected region.
+;; Runs js-codemod on current sentence or selected region.
 
 ;;; Code:
 
@@ -35,15 +35,20 @@
   "Path of program to run for codemod execution.")
 
 ;;;###autoload
-(defun js-codemod-mod-region (beg end)
-  "Run js-codemod `MOD' on currentline or selected region."
-  (interactive
-   (if (region-active-p)
-       (list (region-beginning) (region-end))
-     (list (line-beginning-position) (line-end-position))))
+(defun js-codemod-mod-region (beg end &optional codemod)
+  "Run js-codemod `MOD' selected region or on the current sentence region."
+  (interactive "r")
+  (unless (region-active-p)
+    (save-excursion
+      (end-of-line)
+      (backward-sentence)
+      (setq beg (line-beginning-position))
+      (forward-sentence)
+      (setq end (point))))
+  (unless codemod
+    (setq codemod (read-file-name "Codemode file: ")))
   (save-excursion
-    (let* ((mod (read-file-name "Codemode file: "))
-           (delete t)
+    (let* ((delete t)
            (redisplay nil)
            (selection (buffer-substring beg end))
            (exit (call-process-region beg
@@ -54,8 +59,8 @@
                                         ,js-codemod--err-file ; write stderr to file
                                         )
                                       redisplay
-                                      mod)))
-      (cond ((zerop exit) (message "Codemod %s...done" mod))
+                                      codemod)))
+      (cond ((zerop exit) (message "Codemod %s...done" codemod))
             (t (progn
                  (message "Codemod failed: %s"
                           (with-temp-buffer
